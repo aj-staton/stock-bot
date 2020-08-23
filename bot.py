@@ -32,7 +32,7 @@ if __name__ == '__main__':
     data.close()
     
     write_file = open('data_dump.csv', 'w+')
-    write_file.write('symbol,current_price,target-price,difference')
+    write_file.write('symbol,current_price,target-price,difference\n')
     write_file.close()
     write_file = open ('data_dump.csv', 'a')
 
@@ -59,9 +59,13 @@ if __name__ == '__main__':
                 target = r.json()['targetMedian']
             except:
                 continue
+        
+
+        print(symbol+","+str(price)+ ","+str(target)+","+\
+                            str(target-price)+"\n")
 
         write_file.write(symbol+","+str(price)+ ","+str(target)+","+\
-                            str(target-price))
+                            str(target-price)+"\n")
         
         time.sleep(2) # This is a rate-limited API.
 
