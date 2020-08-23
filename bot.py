@@ -21,20 +21,20 @@ PRICE_DIFFS = dict()
 def updateStockList():
     # Grab a list of supported stocks by the API
     stocks = req.get(FIN + '/stock/symbol?exchange=US&token=' + KEY)
-    with open("stock_list.json", "w") as f:
+    with open("data/stock_list.json", "w") as f:
         json.dump(stocks.json(), f)
 
 if __name__ == '__main__':
     updateStockList()
 
-    data = open("stock_list.json",)
+    data = open("data/stock_list.json",)
     stocks = json.load(data)
     data.close()
     
-    write_file = open('data_dump.csv', 'w+')
+    write_file = open('data/price_analyst.csv', 'w+')
     write_file.write('symbol,current_price,target-price,difference\n')
     write_file.close()
-    write_file = open ('data_dump.csv', 'a')
+    write_file = open ('data/price_analyst.csv', 'a')
 
     # Go through all stock tickers and look for analyst projects (if existing).
     for stock in stocks:
@@ -67,6 +67,6 @@ if __name__ == '__main__':
         write_file.write(symbol+","+str(price)+ ","+str(target)+","+\
                             str(target-price)+"\n")
         
-        time.sleep(2) # This is a rate-limited API.
+        time.sleep(4) # This is a rate-limited API.
 
     write_file.close()
