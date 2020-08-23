@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/aj-staton/stock-bot.svg?branch=master)](https://travis-ci.com/aj-staton/stock-bot)
+
 # Stock Bot
 Finding companies to invest in is challenging. This tool aims to fix that. I'm planning to use this script to find companies of interest that I can then give a proper Fundamental Analysis for the potential of investment.
 
