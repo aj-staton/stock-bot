@@ -4,4 +4,6 @@ keys.py # This stores my API key.
 # Data within the data folder cannot be posted; however,
 #  the folder itself is still neccessary.
 data/stock_list.json
-data/price_analyst.csv
+data/undervalued.csv
+data/overvalued.csv
+data/all.csv

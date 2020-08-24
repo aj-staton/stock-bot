@@ -12,9 +12,7 @@ import json
 import time
 
 FIN = 'https://finnhub.io/api/v1' # API's URL
-LIMIT_CALLS = True
-LIMIT_TIME = 30 # My free key gets thirty calls per second. This will throttle. 
-PRICE_DIFFS = dict()
+LIMIT = 60 # My free key gets sixty calls per minute. 
 
 # @breif: updateStockList() will update the group of Stocks
 #         collected in from the `symbol` API call.
@@ -26,15 +24,23 @@ def updateStockList():
 
 if __name__ == '__main__':
     updateStockList()
-
+    call_count = 1 # This is a counter for the calls I make to the API.
+    
+    # Grab all tickers from the NYSE.
     data = open("data/stock_list.json",)
     stocks = json.load(data)
     data.close()
     
-    write_file = open('data/price_analyst.csv', 'w+')
-    write_file.write('symbol,current_price,target-price,difference\n')
-    write_file.close()
-    write_file = open ('data/price_analyst.csv', 'a')
+    # Split output files into two for my own organization.
+    under_file = open('data/undervalued.csv', 'w+')
+    under_file.write("symbol,current_price,target_price,difference,growth_ratio\n")
+    under_file.close()
+    over_file = open('data/overvalued.csv', 'w+')
+    over_file.write("symbol,current_price,target_price,difference,growth_ratio\n")
+    over_file.close()
+
+    under_file = open ('data/undervalued.csv', 'a')
+    over_file = open('data/overvalued.csv', 'a')
 
     # Go through all stock tickers and look for analyst projects (if existing).
     for stock in stocks:
@@ -43,6 +49,7 @@ if __name__ == '__main__':
         
         # Grab Pricing data.
         r = req.get(FIN+'/quote?symbol='+symbol+'&token='+KEY)
+        call_count += 1
         if (r.status_code == 200):
             try:
                 price = r.json()['c'] # 'c' is current price.
@@ -50,23 +57,41 @@ if __name__ == '__main__':
                 continue
         else:
             print("Bad HTTP Request. Check URL and API call limits.")
-            exit(0)
+            break
         
         # Grab Analyst Target Data (the median, specifically)
         r = req.get(FIN+'/stock/price-target?symbol='+symbol+'&token='+KEY)
+        call_count += 1
+
         if (r.status_code == 200):
             try:
                 target = r.json()['targetMedian']
             except:
                 continue
+        else:
+            print("Bad HTTP Request. Check URL and API call limits.")
+            break
         
+        if (target == 0 or price == 0):
+            continue
+
+        difference = round(float(target)-price, 2)
+        growth_ratio = round(float(target/price), 2)
 
         print(symbol+","+str(price)+ ","+str(target)+","+\
-                            str(target-price)+"\n")
-
-        write_file.write(symbol+","+str(price)+ ","+str(target)+","+\
-                            str(target-price)+"\n")
+                            str(difference)+","+str(growth_ratio)+"\n")
         
-        time.sleep(4) # This is a rate-limited API.
+        # If the target is greater than price, a stock could be undervalued.
+        if (difference > 0):
+            undervalued.write(symbol+","+str(price)+ ","+str(target)+","+\
+                            str(difference)+","+str(growth_ratio)+"\n")
+        else:
+            overvalued.write(symbol+","+str(price)+ ","+str(target)+","+\
+                            str(difference)+","+str(growth_ratio)+"\n")
+        # API Rate-Throttling to ensure no 429 statuses.
+        if (call_count >= LIMIT - 3):
+            time.sleep(60) # This is a rate-limited API.
 
-    write_file.close()
+    undervalued.close()
+    overvalued.close()
+    
