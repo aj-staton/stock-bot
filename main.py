@@ -76,22 +76,22 @@ if __name__ == '__main__':
             continue
 
         difference = round(float(target)-price, 2)
-        growth_ratio = round(float(target/price), 2)
+        growth_ratio = round(float(difference/price), 2)
 
         print(symbol+","+str(price)+ ","+str(target)+","+\
-                            str(difference)+","+str(growth_ratio)+"\n")
+                            str(difference)+","+str(growth_ratio))
         
         # If the target is greater than price, a stock could be undervalued.
         if (difference > 0):
-            undervalued.write(symbol+","+str(price)+ ","+str(target)+","+\
+            under_file.write(symbol+","+str(price)+ ","+str(target)+","+\
                             str(difference)+","+str(growth_ratio)+"\n")
         else:
-            overvalued.write(symbol+","+str(price)+ ","+str(target)+","+\
+            over_file.write(symbol+","+str(price)+ ","+str(target)+","+\
                             str(difference)+","+str(growth_ratio)+"\n")
         # API Rate-Throttling to ensure no 429 statuses.
-        if (call_count >= LIMIT - 3):
+        if (call_count >= LIMIT - 5):
             time.sleep(60) # This is a rate-limited API.
 
-    undervalued.close()
-    overvalued.close()
+    under_file.close()
+    over_file.close()
     
