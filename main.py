@@ -53,6 +53,7 @@ if __name__ == '__main__':
         if (r.status_code == 200):
             try:
                 price = r.json()['c'] # 'c' is current price.
+                print("No price found.")
             except:
                 continue
         else:
@@ -67,6 +68,7 @@ if __name__ == '__main__':
             try:
                 target = r.json()['targetMedian']
             except:
+                print("No median found."
                 continue
         else:
             print("Bad HTTP Request. Check URL and API call limits.")
@@ -90,6 +92,7 @@ if __name__ == '__main__':
                             str(difference)+","+str(growth_ratio)+"\n")
         # API Rate-Throttling to ensure no 429 statuses.
         if (call_count >= LIMIT - 5):
+            call_count = 0
             time.sleep(60) # This is a rate-limited API.
 
     under_file.close()
