@@ -68,7 +68,7 @@ if __name__ == '__main__':
             try:
                 target = r.json()['targetMedian']
             except:
-                print("No median found."
+                print("No median found.")
                 continue
         else:
             print("Bad HTTP Request. Check URL and API call limits.")
