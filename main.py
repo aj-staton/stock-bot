@@ -14,6 +14,7 @@ import time
 FIN = 'https://finnhub.io/api/v1' # API's URL
 LIMIT = 60 # My free key gets sixty calls per minute. 
 MINUTE = 60 # 60s = 1 min
+
 # @breif: updateStockList() will update the group of Stocks
 #         collected in from the `symbol` API call.
 def updateStockList():
@@ -24,6 +25,7 @@ def updateStockList():
 
 if __name__ == '__main__':
     updateStockList()
+    
     call_count = 1 # This is a counter for the calls I make to the API.
     
     # Grab all tickers from the NYSE.
@@ -61,7 +63,7 @@ if __name__ == '__main__':
             continue
 
         call_count += 1
-        if (r.status_code == 200):
+        if (r.status_code == HTTP_OK):
             try:
                 price = r.json()['c'] # 'c' is current price.
                 #print("No price found.")
@@ -69,7 +71,7 @@ if __name__ == '__main__':
                 continue
         else:
             print("Bad HTTP Request. Status Code: " + str(r.status_code))
-            if (r.status_code == 429):
+            if (r.status_code == HTTP_TOOMANY):
                 time.sleep(LIMIT)
             continue
         
@@ -81,15 +83,14 @@ if __name__ == '__main__':
 
         call_count += 1
 
-        if (r.status_code == 200):
+        if (r.status_code == HTTP_OK):
             try:
                 target = r.json()['targetMedian']
             except:
-                # print("No median found.")
                 continue
         else:
             print("Bad HTTP Request. Status Code: " + str(r.status_code))
-            if (r.status_code == 429):
+            if (r.status_code == HTTP_TOOMANY):
                 time.sleep(LIMIT)
             continue
         
@@ -112,4 +113,5 @@ if __name__ == '__main__':
 
     under_file.close()
     over_file.close()
+    
     
