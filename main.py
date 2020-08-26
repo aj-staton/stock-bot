@@ -13,7 +13,7 @@ import time
 
 FIN = 'https://finnhub.io/api/v1' # API's URL
 LIMIT = 60 # My free key gets sixty calls per minute. 
-
+MINUTE = 60 # 60s = 1 min
 # @breif: updateStockList() will update the group of Stocks
 #         collected in from the `symbol` API call.
 def updateStockList():
@@ -44,11 +44,22 @@ if __name__ == '__main__':
 
     # Go through all stock tickers and look for analyst projects (if existing).
     for stock in stocks:
-       
+        
+        # Ensure I have not exceeded the allowed amount of call's for the API.
+        # The `LIMIT - 4` below is to ensure that the 3 API calls within the
+        # loop can be executed.
+        if (call_count >= LIMIT - 4):
+            call_count = 0
+            time.sleep(MINUTE)
+
         symbol = stock['symbol']
         
         # Grab Pricing data.
-        r = req.get(FIN+'/quote?symbol='+symbol+'&token='+KEY)
+        try:
+            r = req.get(FIN+'/quote?symbol='+symbol+'&token='+KEY)
+        except:
+            continue
+
         call_count += 1
         if (r.status_code == 200):
             try:
@@ -57,11 +68,17 @@ if __name__ == '__main__':
             except:
                 continue
         else:
-            print("Bad HTTP Request. Check URL and API call limits.")
-            break
+            print("Bad HTTP Request. Status Code: " + str(r.status_code))
+            if (r.status_code == 429):
+                time.sleep(LIMIT)
+            continue
         
         # Grab Analyst Target Data (the median, specifically)
-        r = req.get(FIN+'/stock/price-target?symbol='+symbol+'&token='+KEY)
+        try:
+            r = req.get(FIN+'/stock/price-target?symbol='+symbol+'&token='+KEY)
+        except:
+            continue
+
         call_count += 1
 
         if (r.status_code == 200):
@@ -71,8 +88,10 @@ if __name__ == '__main__':
                 # print("No median found.")
                 continue
         else:
-            print("Bad HTTP Request. Check URL and API call limits.")
-            break
+            print("Bad HTTP Request. Status Code: " + str(r.status_code))
+            if (r.status_code == 429):
+                time.sleep(LIMIT)
+            continue
         
         if (target == 0 or price == 0):
             continue
@@ -80,7 +99,7 @@ if __name__ == '__main__':
         difference = round(float(target)-price, 2)
         growth_ratio = round(float(difference/price), 2)
 
-        print(symbol+","+str(price)+ ","+str(target)+","+\
+        print(str(call_count)+","+symbol+","+str(price)+ ","+str(target)+","+\
                             str(difference)+","+str(growth_ratio))
         
         # If the target is greater than price, a stock could be undervalued.
@@ -90,10 +109,6 @@ if __name__ == '__main__':
         else:
             over_file.write(symbol+","+str(price)+ ","+str(target)+","+\
                             str(difference)+","+str(growth_ratio)+"\n")
-        # API Rate-Throttling to ensure no 429 statuses.
-        if (call_count >= LIMIT - 5):
-            call_count = 0
-            time.sleep(60) # This is a rate-limited API.
 
     under_file.close()
     over_file.close()
