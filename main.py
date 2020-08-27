@@ -7,11 +7,11 @@
 
 import requests as req
 from keys import *
-import lib
+from lib import *
 import json
 import time
 
-FIN = 'https://finnhub.io/api/v1' # API's URL
+URI = 'https://finnhub.io/api/v1' # Finnhub's APU URI
 LIMIT = 60 # My free key gets sixty calls per minute. 
 MINUTE = 60 # 60s = 1 min
 
@@ -19,9 +19,9 @@ MINUTE = 60 # 60s = 1 min
 #         collected in from the `symbol` API call.
 def updateStockList():
     # Grab a list of supported stocks by the API
-    stocks = req.get(FIN + '/stock/symbol?exchange=US&token=' + KEY)
+    stocks = restGetData(URI,'/stock/symbol?exchange=US&token=' + KEY, [])
     with open("data/stock_list.json", "w") as f:
-        json.dump(stocks.json(), f)
+        json.dump(stocks, f)
 
 if __name__ == '__main__':
     updateStockList()
@@ -33,16 +33,13 @@ if __name__ == '__main__':
     stocks = json.load(data)
     data.close()
     
-    # Split output files into two for my own organization.
-    under_file = open('data/undervalued.csv', 'w+')
-    under_file.write("symbol,current_price,target_price,difference,growth_ratio\n")
-    under_file.close()
-    over_file = open('data/overvalued.csv', 'w+')
-    over_file.write("symbol,current_price,target_price,difference,growth_ratio\n")
-    over_file.close()
+    # Open output files in the `data` folder.
+    out_file = open('data/stock-data.csv', 'w+')
+    out_file.write("Symbol,Name,Current Price,Target Low,Target Median,Target \
+                      High,Difference,ROI Potential\n")
+    out_file.close()
 
-    under_file = open ('data/undervalued.csv', 'a')
-    over_file = open('data/overvalued.csv', 'a')
+    out_file = open ('data/stock-data.csv', 'a')
 
     # Go through all stock tickers and look for analyst projects (if existing).
     for stock in stocks:
@@ -55,63 +52,40 @@ if __name__ == '__main__':
             time.sleep(MINUTE)
 
         symbol = stock['symbol']
-        
-        # Grab Pricing data.
-        try:
-            r = req.get(FIN+'/quote?symbol='+symbol+'&token='+KEY)
-        except:
-            continue
+        name = stock['description']
 
+        # Grab Pricing data.
+        price_data = restGetData(URI, '/quote?symbol='+symbol+'&token='+\
+                        KEY, ['c'])
         call_count += 1
-        if (r.status_code == HTTP_OK):
-            try:
-                price = r.json()['c'] # 'c' is current price.
-                #print("No price found.")
-            except:
-                continue
-        else:
-            print("Bad HTTP Request. Status Code: " + str(r.status_code))
-            if (r.status_code == HTTP_TOOMANY):
-                time.sleep(LIMIT)
+        if (price_data == []):
             continue
+        curr_price = price_data['c']
         
         # Grab Analyst Target Data (the median, specifically)
-        try:
-            r = req.get(FIN+'/stock/price-target?symbol='+symbol+'&token='+KEY)
-        except:
-            continue
-
+        target_data = restGetData(URI, '/stock/price-target?symbol='+symbol\
+                        +'&token='+KEY, ['targetMedian', 'targetLow',
+                        'targetHigh'])
         call_count += 1
-
-        if (r.status_code == HTTP_OK):
-            try:
-                target = r.json()['targetMedian']
-            except:
-                continue
-        else:
-            print("Bad HTTP Request. Status Code: " + str(r.status_code))
-            if (r.status_code == HTTP_TOOMANY):
-                time.sleep(LIMIT)
-            continue
-        
-        if (target == 0 or price == 0):
+        if (target_data == []):
             continue
 
-        difference = round(float(target)-price, 2)
-        growth_ratio = round(float(difference/price), 2)
+        target = target_data['targetMedian']
+        target_low = target_data['targetLow']
+        target_high = target_data['targetHigh']
 
-        print(str(call_count)+","+symbol+","+str(price)+ ","+str(target)+","+\
-                            str(difference)+","+str(growth_ratio))
+        if (target == 0 or curr_price == 0):
+            continue
+
+        difference = round(float(target)-curr_price, 2)
+        roi = round(float(difference/curr_price), 2)
+
+        print(str(call_count)+","+symbol+","+str(curr_price)+ ","+str(target)+","+\
+                            str(difference)+","+str(roi))
         
-        # If the target is greater than price, a stock could be undervalued.
-        if (difference > 0):
-            under_file.write(symbol+","+str(price)+ ","+str(target)+","+\
-                            str(difference)+","+str(growth_ratio)+"\n")
-        else:
-            over_file.write(symbol+","+str(price)+ ","+str(target)+","+\
-                            str(difference)+","+str(growth_ratio)+"\n")
-
-    under_file.close()
-    over_file.close()
-    
-    
+        output = symbol+","+name+","+str(curr_price)+","+\
+                 str(target_low)+","+str(target)+","+str(target_high)+","+\
+                 str(difference)+","+str(roi)
+        out_file.write(output)
+      
+    out_file.close()
