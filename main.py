@@ -34,12 +34,12 @@ if __name__ == '__main__':
     data.close()
     
     # Open output files in the `data` folder.
-    out_file = open('data/stock-data.csv', 'w+')
+    out_file = open('data/stock_data.csv', 'w+')
     out_file.write("Symbol,Name,Current Price,Target Low,Target Median,Target \
                       High,Difference,ROI Potential\n")
     out_file.close()
 
-    out_file = open ('data/stock-data.csv', 'a')
+    out_file = open ('data/stock_data.csv', 'a')
 
     # Go through all stock tickers and look for analyst projects (if existing).
     for stock in stocks:
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         
         output = symbol+","+name+","+str(curr_price)+","+\
                  str(target_low)+","+str(target)+","+str(target_high)+","+\
-                 str(difference)+","+str(roi)
+                 str(difference)+","+str(roi)+"\n"
         out_file.write(output)
       
     out_file.close()

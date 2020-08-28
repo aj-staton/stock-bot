@@ -5,6 +5,4 @@ keys.py
 # Data within the data folder cannot be posted; however,
 #  the folder itself is still neccessary.
 data/stock_list.json
-data/undervalued.csv
-data/overvalued.csv
-data/all.csv
+data/stock_data.csv
