@@ -9,17 +9,18 @@ I don't plan to try to perform the Fundamental Analysis with anything in a compu
 - [ ] Add the ability to input a stock ticker, look up the ticker's peers in the
   market, and rank thier P/E and P/B.
 
-## Use
+## Execution
 * Go to [Finnhub's](https://finnhub.io/) website and create an account to get an API key.
 * With this key, make a file in the repo folder called `key.py`. The file should look like this:
 ```python
 KEY="<your api key>"
 ```
 This file gets imported into `main.py` for the data collection.
-* Run `make bot`; then, the data will be printed to the console as its read. Once the entire process is complete, two files `data/overvalued.csv` and `data/undervalued.csv` will be produced.
+* There are two `make` targets:`roi` and `pe`. The first, `roi`, will produce data on the projected growth for companies based on analyst targets
 
 ### Disclaimers
  * No stock is guaranteed to increase in value. If stocks were always that deterministic, there would be no risk. No data this repository produces should be taken as investment advice.
- * The free version of the Finnhub API is [rate-limited at 60 calls per
- * minute](https://finnhub.io/pricing). Over 10k calls will be needed. Don't be
+ * The free version of the Finnhub API is [rate-limited at 60 calls per minute](https://finnhub.io/pricing). Over 10k calls will be needed. Don't be
  in too much of a rush for this data.
+ * Some stocks only have one analyst rating; so, if that _one_ analyst thinks the stock price is shooting to the moon, the data will too. This is very common 
+ to see on penny stocks. Be able to identify these anomalies. 
