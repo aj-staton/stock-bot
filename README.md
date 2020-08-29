@@ -5,7 +5,7 @@ Finding companies to invest in is challenging. This tool aims to fix that. I'm p
 I don't plan to try to perform the Fundamental Analysis with anything in a computer program. In my own (and probably naive) opinion, that type of assessment can only be properly performed by a set of human eyes and mind. I'm simply looking to narrow my search here.
 
 ## Goals
-- [X] These scripts will parse all NYSE ticker and look for companies with high growth projections. So, it'll grab a ticker's current price, compare it to the median of analyst projections, and return the companies that have the highest (alleged) room for growth. 
+- [X] These scripts will parse all NYSE tickers and look for companies with high growth projections. So, it'll grab a ticker's current price, compare it to the median of analyst projections, and return the companies that have the highest (alleged) room for growth. 
 - [ ] Add the ability to input a stock ticker, look up the ticker's peers in the
   market, and rank thier P/E and P/B.
 
