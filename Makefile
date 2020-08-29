@@ -1,2 +1,4 @@
-bot:
-	python3 main.py
+roi:
+	python3 roi.py
+pe:
+	python3 pe-ratio.py

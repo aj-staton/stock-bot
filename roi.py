@@ -76,6 +76,9 @@ if __name__ == '__main__':
 
         if (target == 0 or curr_price == 0):
             continue
+        
+        # TODO: Grab all the company's peers (if existing) and compare P/E and
+        # other data values. Maybe in a different module?
 
         difference = round(float(target)-curr_price, 2)
         roi = round(float(difference/curr_price), 2)
