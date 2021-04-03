@@ -8,6 +8,7 @@ I don't plan to try to perform the Fundamental Analysis with anything in a compu
 - [X] These scripts will parse all NYSE tickers and look for companies with high growth projections. So, it'll grab a ticker's current price, compare it to the median of analyst projections, and return the companies that have the highest (alleged) room for growth. 
 - [ ] Add the ability to input a stock ticker, look up the ticker's peers in the
   market, and rank thier P/E and P/B.
+- [ ] Use yahoo finance's API to run quick DCF valuationss on a list of given tickers. Compare to current valuatiosn.
 
 ## Execution
 * Go to [Finnhub's](https://finnhub.io/) website and create an account to get an API key.
